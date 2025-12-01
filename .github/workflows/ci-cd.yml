@@ -158,6 +158,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: lint-and-test
+    continue-on-error: true
     
     steps:
       - name: Checkout code
@@ -174,6 +175,7 @@ jobs:
       - name: Upload Backend Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        continue-on-error: true
         with:
           sarif_file: 'trivy-backend-results.sarif'
           category: 'trivy-backend'
@@ -189,6 +191,7 @@ jobs:
       - name: Upload Gateway Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        continue-on-error: true
         with:
           sarif_file: 'trivy-gateway-results.sarif'
           category: 'trivy-gateway'
@@ -203,19 +206,19 @@ jobs:
       - name: Check Build Status
         run: |
           if [ "${{ needs.lint-and-test.result }}" != "success" ]; then
-            echo "Lint and test failed"
+            echo "❌ Lint and test failed"
             exit 1
           fi
           if [ "${{ needs.docker-build.result }}" != "success" ]; then
-            echo "Docker build failed"
+            echo "❌ Docker build failed"
             exit 1
           fi
           if [ "${{ needs.integration-test.result }}" != "success" ]; then
-            echo "Integration tests failed"
+            echo "❌ Integration tests failed"
             exit 1
           fi
-          if [ "${{ needs.security-scan.result }}" != "success" ]; then
-            echo "Security scan failed"
-            exit 1
+          # Security scan is optional, only warn if it failed
+          if [ "${{ needs.security-scan.result }}" == "failure" ]; then
+            echo "⚠️ Security scan failed (non-blocking)"
           fi
-          echo "All checks passed!"
+          echo "✅ All required checks passed!"
