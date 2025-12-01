@@ -1,0 +1,52 @@
+services:
+  # MongoDB Database
+  - type: pserv
+    name: mongo
+    env: docker
+    image: mongo:latest
+    disk:
+      name: mongo-data
+      mountPath: /data/db
+      sizeGB: 1
+    envVars:
+      - key: MONGO_INITDB_ROOT_USERNAME
+        sync: false
+      - key: MONGO_INITDB_ROOT_PASSWORD
+        sync: false
+
+  # Backend Service (Internal)
+  - type: web
+    name: backend
+    env: docker
+    image: xo9a8/h-backend:latest
+    healthCheckPath: /health
+    envVars:
+      - key: BACKEND_PORT
+        value: 3847
+      - key: MONGO_URI
+        value: mongodb://mongo:27017
+      - key: MONGO_DATABASE
+        value: productdb
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_INITDB_ROOT_USERNAME
+        sync: false
+      - key: MONGO_INITDB_ROOT_PASSWORD
+        sync: false
+
+  # Gateway Service (Public)
+  - type: web
+    name: gateway
+    env: docker
+    image: xo9a8/h-gateway:latest
+    healthCheckPath: /health
+    envVars:
+      - key: GATEWAY_PORT
+        value: 5921
+      - key: BACKEND_URL
+        fromService:
+          name: backend
+          type: web
+          property: hostport
+      - key: NODE_ENV
+        value: production
