@@ -18,7 +18,7 @@ services:
   - type: web
     name: backend
     env: docker
-    image: xo9a8/h-backend:latest
+    image: x08a8/h-backend:latest
     healthCheckPath: /health
     envVars:
       - key: BACKEND_PORT
@@ -38,7 +38,7 @@ services:
   - type: web
     name: gateway
     env: docker
-    image: xo9a8/h-gateway:latest
+    image: x08a8/h-gateway:latest
     healthCheckPath: /health
     envVars:
       - key: GATEWAY_PORT

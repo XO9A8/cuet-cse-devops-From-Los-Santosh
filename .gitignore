@@ -29,5 +29,7 @@ Thumbs.db
 *.tmp
 .cache/
 
+# Documentation (optional)
 DEVOPS_IMPLEMENTATION.md
 GITHUB_ACTIONS.md
+DEPLOYMENT.md
