@@ -54,127 +54,127 @@ COMPOSE_FILE = docker/compose.$(MODE).yaml
 
 # Docker Services:
 up:
-    docker compose -f $(COMPOSE_FILE) up -d $(ARGS)
+	docker compose --env-file .env -f $(COMPOSE_FILE) up -d $(ARGS)
 
 down:
-    docker compose -f $(COMPOSE_FILE) down $(ARGS)
+	docker compose --env-file .env -f $(COMPOSE_FILE) down $(ARGS)
 
 build:
-    docker compose -f $(COMPOSE_FILE) build $(ARGS)
+	docker compose --env-file .env -f $(COMPOSE_FILE) build $(ARGS)
 
 logs:
-    docker compose -f $(COMPOSE_FILE) logs -f $(SERVICE)
+	docker compose --env-file .env -f $(COMPOSE_FILE) logs -f $(SERVICE)
 
 restart:
-    docker compose -f $(COMPOSE_FILE) restart $(SERVICE)
+	docker compose --env-file .env -f $(COMPOSE_FILE) restart $(SERVICE)
 
 shell:
-    docker compose -f $(COMPOSE_FILE) exec $(or $(SERVICE), backend) sh
+	docker compose --env-file .env -f $(COMPOSE_FILE) exec $(or $(SERVICE), backend) sh
 
 ps:
-    docker compose -f $(COMPOSE_FILE) ps
+	docker compose --env-file .env -f $(COMPOSE_FILE) ps
 
 # Convenience Aliases (Development):
 dev-up:
-    make up MODE=development
+	make up MODE=development
 
 dev-down:
-    make down MODE=development
+	make down MODE=development
 
 dev-build:
-    make build MODE=development
+	make build MODE=development
 
 dev-logs:
-    make logs MODE=development
+	make logs MODE=development
 
 dev-restart:
-    make restart MODE=development
+	make restart MODE=development
 
 dev-shell:
-    make shell MODE=development SERVICE=backend
+	make shell MODE=development SERVICE=backend
 
 dev-ps:
-    make ps MODE=development
+	make ps MODE=development
 
 backend-shell:
-    make shell SERVICE=backend
+	make shell SERVICE=backend
 
 gateway-shell:
-    make shell SERVICE=gateway
+	make shell SERVICE=gateway
 
 mongo-shell:
-    docker compose -f $(COMPOSE_FILE) exec mongo mongosh -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD
+	docker compose --env-file .env -f $(COMPOSE_FILE) exec mongo mongosh -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD
 
 # Convenience Aliases (Production):
 prod-up:
-    make up MODE=production
+	make up MODE=production
 
 prod-down:
-    make down MODE=production
+	make down MODE=production
 
 prod-build:
-    make build MODE=production
+	make build MODE=production
 
 prod-logs:
-    make logs MODE=production
+	make logs MODE=production
 
 prod-restart:
-    make restart MODE=production
+	make restart MODE=production
 
 # Backend:
 backend-build:
-    cd backend && npm run build
+	cd backend && npm run build
 
 backend-install:
-    cd backend && npm install
+	cd backend && npm install
 
 backend-type-check:
-    cd backend && npm run type-check
+	cd backend && npm run type-check
 
 backend-dev:
-    cd backend && npm run dev
+	cd backend && npm run dev
 
 # Database:
 db-reset:
-    @echo "WARNING: This will delete all data in the database. Are you sure? [y/N]"
-    @read -r ans && [ "$$ans" = "y" ] || exit 1
-    docker compose -f $(COMPOSE_FILE) down -v
+	@echo "WARNING: This will delete all data in the database. Are you sure? [y/N]"
+	@read -r ans && [ "$$ans" = "y" ] || exit 1
+	docker compose --env-file .env -f $(COMPOSE_FILE) down -v
 
 db-backup:
-    @echo "Creating backup..."
-    docker compose -f $(COMPOSE_FILE) exec mongo mongodump --out /data/db/backup
+	@echo "Creating backup..."
+	docker compose --env-file .env -f $(COMPOSE_FILE) exec mongo mongodump --out /data/db/backup
 
 # Cleanup:
 clean:
-    docker compose -f docker/compose.development.yaml down
-    docker compose -f docker/compose.production.yaml down
+	docker compose -f docker/compose.development.yaml down
+	docker compose -f docker/compose.production.yaml down
 
 clean-all:
-    docker compose -f docker/compose.development.yaml down -v --rmi all --remove-orphans
-    docker compose -f docker/compose.production.yaml down -v --rmi all --remove-orphans
+	docker compose -f docker/compose.development.yaml down -v --rmi all --remove-orphans
+	docker compose -f docker/compose.production.yaml down -v --rmi all --remove-orphans
 
 clean-volumes:
-    docker volume prune -f
+	docker volume prune -f
 
 # Utilities:
 status: ps
 
 health:
-    @echo "Checking Gateway Health..."
-    @curl -s http://localhost:5921/health || echo "Gateway is down"
-    @echo "\nChecking Backend Health via Gateway..."
-    @curl -s http://localhost:5921/api/health || echo "Backend is down"
+	@echo "Checking Gateway Health..."
+	@curl -s http://localhost:5921/health || echo "Gateway is down"
+	@echo "\nChecking Backend Health via Gateway..."
+	@curl -s http://localhost:5921/api/health || echo "Backend is down"
 
 # Help:
 help:
-    @echo "Available commands:"
-    @echo "  make up [MODE=prod]       - Start services"
-    @echo "  make down [MODE=prod]     - Stop services"
-    @echo "  make build [MODE=prod]    - Build services"
-    @echo "  make logs [SERVICE=name]  - View service logs"
-    @echo "  make shell [SERVICE=name] - Open shell in container"
-    @echo "  make dev-up               - Start development environment"
-    @echo "  make prod-up              - Start production environment"
-    @echo "  make health               - Check service health"
+	@echo "Available commands:"
+	@echo "  make up [MODE=prod]       - Start services"
+	@echo "  make down [MODE=prod]     - Stop services"
+	@echo "  make build [MODE=prod]    - Build services"
+	@echo "  make logs [SERVICE=name]  - View service logs"
+	@echo "  make shell [SERVICE=name] - Open shell in container"
+	@echo "  make dev-up               - Start development environment"
+	@echo "  make prod-up              - Start production environment"
+	@echo "  make health               - Check service health"
 
 .PHONY: up down build logs restart shell ps dev-up dev-down dev-build dev-logs dev-restart dev-shell dev-ps backend-shell gateway-shell mongo-shell prod-up prod-down prod-build prod-logs prod-restart backend-build backend-install backend-type-check backend-dev db-reset db-backup clean clean-all clean-volumes status health help
