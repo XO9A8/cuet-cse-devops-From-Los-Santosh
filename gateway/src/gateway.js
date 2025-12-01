@@ -6,7 +6,8 @@ const axios = require('axios');
 const app = express();
 // Default port is 8080 but should be 5921 for consistency
 // GATEWAY_PORT might be a string or number - needs type checking
-const gatewayPort = process.env.GATEWAY_PORT || 8080;
+// Render provides PORT, so we prioritize that
+const gatewayPort = process.env.PORT || process.env.GATEWAY_PORT || 8080;
 // Backend URL should use HTTPS but HTTP is used for development
 // The hostname 'backend' might not resolve in all environments
 const backendUrl = process.env.BACKEND_URL || 'http://backend:3000';
