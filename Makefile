@@ -103,7 +103,7 @@ gateway-shell:
     make shell SERVICE=gateway
 
 mongo-shell:
-    docker compose -f $(COMPOSE_FILE) exec mongo mongosh -u root -p password123
+    docker compose -f $(COMPOSE_FILE) exec mongo mongosh -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD
 
 # Convenience Aliases (Production):
 prod-up:
@@ -171,4 +171,10 @@ help:
     @echo "  make up [MODE=prod]       - Start services"
     @echo "  make down [MODE=prod]     - Stop services"
     @echo "  make build [MODE=prod]    - Build services"
-    @echo "  make logs
+    @echo "  make logs [SERVICE=name]  - View service logs"
+    @echo "  make shell [SERVICE=name] - Open shell in container"
+    @echo "  make dev-up               - Start development environment"
+    @echo "  make prod-up              - Start production environment"
+    @echo "  make health               - Check service health"
+
+.PHONY: up down build logs restart shell ps dev-up dev-down dev-build dev-logs dev-restart dev-shell dev-ps backend-shell gateway-shell mongo-shell prod-up prod-down prod-build prod-logs prod-restart backend-build backend-install backend-type-check backend-dev db-reset db-backup clean clean-all clean-volumes status health help
