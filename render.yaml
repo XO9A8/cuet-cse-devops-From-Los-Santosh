@@ -39,9 +39,9 @@ services:
   # Gateway Service (Public)
   - type: web
     name: gateway
-    env: i
-      url:mage
-    image: x08a8/h-gateway:latest
+    env: image
+    image:
+      url: x08a8/h-gateway:latest
     healthCheckPath: /health
     envVars:
       - key: GATEWAY_PORT
