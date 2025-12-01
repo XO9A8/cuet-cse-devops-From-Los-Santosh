@@ -125,12 +125,12 @@ jobs:
       - name: Wait for Services
         run: |
           echo "Waiting for services to be healthy..."
-          timeout 120 bash -c 'until docker compose -f docker/compose.development.yaml ps | grep -q "healthy"; do sleep 5; done'
+          timeout 120 bash -c 'until docker compose --env-file .env -f docker/compose.development.yaml ps | grep -q "healthy"; do sleep 5; done'
           sleep 10
 
       - name: Check Service Health
         run: |
-          docker compose -f docker/compose.development.yaml ps
+          docker compose --env-file .env -f docker/compose.development.yaml ps
           
       - name: Test Gateway Health
         run: |
@@ -147,12 +147,12 @@ jobs:
       - name: View Logs on Failure
         if: failure()
         run: |
-          docker compose -f docker/compose.development.yaml logs
+          docker compose --env-file .env -f docker/compose.development.yaml logs
 
       - name: Cleanup
         if: always()
         run: |
-          docker compose -f docker/compose.development.yaml down -v
+          docker compose --env-file .env -f docker/compose.development.yaml down -v
 
   security-scan:
     name: Security Scan
@@ -171,6 +171,13 @@ jobs:
           format: 'sarif'
           output: 'trivy-backend-results.sarif'
 
+      - name: Upload Backend Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: 'trivy-backend-results.sarif'
+          category: 'trivy-backend'
+
       - name: Run Trivy vulnerability scanner (Gateway)
         uses: aquasecurity/trivy-action@master
         with:
@@ -179,11 +186,12 @@ jobs:
           format: 'sarif'
           output: 'trivy-gateway-results.sarif'
 
-      - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload Gateway Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: '.'
+          sarif_file: 'trivy-gateway-results.sarif'
+          category: 'trivy-gateway'
 
   build-status:
     name: Build Status
