@@ -3,7 +3,8 @@ services:
   - type: pserv
     name: mongo
     env: image
-    image: mongo:latest
+    image:
+      url: mongo:latest
     disk:
       name: mongo-data
       mountPath: /data/db
@@ -18,7 +19,8 @@ services:
   - type: web
     name: backend
     env: image
-    image: x08a8/h-backend:latest
+    image:
+      url: x08a8/h-backend:latest
     healthCheckPath: /health
     envVars:
       - key: BACKEND_PORT
@@ -37,7 +39,8 @@ services:
   # Gateway Service (Public)
   - type: web
     name: gateway
-    env: image
+    env: i
+      url:mage
     image: x08a8/h-gateway:latest
     healthCheckPath: /health
     envVars:
