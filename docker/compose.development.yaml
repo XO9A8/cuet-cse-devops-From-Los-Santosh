@@ -1,6 +1,3 @@
-# filepath: d:\Colab\cuet\cuet-cse-devops-From-Los-Santosh\docker\compose.development.yaml
-version: '3.8'
-
 services:
   gateway:
     build:

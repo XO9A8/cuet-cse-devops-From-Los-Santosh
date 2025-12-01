@@ -2,7 +2,7 @@ services:
   # MongoDB Database
   - type: pserv
     name: mongo
-    env: docker
+    env: image
     image: mongo:latest
     disk:
       name: mongo-data
@@ -17,7 +17,7 @@ services:
   # Backend Service (Internal)
   - type: web
     name: backend
-    env: docker
+    env: image
     image: x08a8/h-backend:latest
     healthCheckPath: /health
     envVars:
@@ -37,7 +37,7 @@ services:
   # Gateway Service (Public)
   - type: web
     name: gateway
-    env: docker
+    env: image
     image: x08a8/h-gateway:latest
     healthCheckPath: /health
     envVars:
