@@ -28,3 +28,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 .cache/
+
+DEVOPS_IMPLEMENTATION.md
+GITHUB_ACTIONS.md
