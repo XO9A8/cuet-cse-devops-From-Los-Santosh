@@ -48,3 +48,127 @@
 # Help:
 #   help - Display this help message
 
+# Variables
+MODE ?= development
+COMPOSE_FILE = docker/compose.$(MODE).yaml
+
+# Docker Services:
+up:
+    docker compose -f $(COMPOSE_FILE) up -d $(ARGS)
+
+down:
+    docker compose -f $(COMPOSE_FILE) down $(ARGS)
+
+build:
+    docker compose -f $(COMPOSE_FILE) build $(ARGS)
+
+logs:
+    docker compose -f $(COMPOSE_FILE) logs -f $(SERVICE)
+
+restart:
+    docker compose -f $(COMPOSE_FILE) restart $(SERVICE)
+
+shell:
+    docker compose -f $(COMPOSE_FILE) exec $(or $(SERVICE), backend) sh
+
+ps:
+    docker compose -f $(COMPOSE_FILE) ps
+
+# Convenience Aliases (Development):
+dev-up:
+    make up MODE=development
+
+dev-down:
+    make down MODE=development
+
+dev-build:
+    make build MODE=development
+
+dev-logs:
+    make logs MODE=development
+
+dev-restart:
+    make restart MODE=development
+
+dev-shell:
+    make shell MODE=development SERVICE=backend
+
+dev-ps:
+    make ps MODE=development
+
+backend-shell:
+    make shell SERVICE=backend
+
+gateway-shell:
+    make shell SERVICE=gateway
+
+mongo-shell:
+    docker compose -f $(COMPOSE_FILE) exec mongo mongosh -u root -p password123
+
+# Convenience Aliases (Production):
+prod-up:
+    make up MODE=production
+
+prod-down:
+    make down MODE=production
+
+prod-build:
+    make build MODE=production
+
+prod-logs:
+    make logs MODE=production
+
+prod-restart:
+    make restart MODE=production
+
+# Backend:
+backend-build:
+    cd backend && npm run build
+
+backend-install:
+    cd backend && npm install
+
+backend-type-check:
+    cd backend && npm run type-check
+
+backend-dev:
+    cd backend && npm run dev
+
+# Database:
+db-reset:
+    @echo "WARNING: This will delete all data in the database. Are you sure? [y/N]"
+    @read -r ans && [ "$$ans" = "y" ] || exit 1
+    docker compose -f $(COMPOSE_FILE) down -v
+
+db-backup:
+    @echo "Creating backup..."
+    docker compose -f $(COMPOSE_FILE) exec mongo mongodump --out /data/db/backup
+
+# Cleanup:
+clean:
+    docker compose -f docker/compose.development.yaml down
+    docker compose -f docker/compose.production.yaml down
+
+clean-all:
+    docker compose -f docker/compose.development.yaml down -v --rmi all --remove-orphans
+    docker compose -f docker/compose.production.yaml down -v --rmi all --remove-orphans
+
+clean-volumes:
+    docker volume prune -f
+
+# Utilities:
+status: ps
+
+health:
+    @echo "Checking Gateway Health..."
+    @curl -s http://localhost:5921/health || echo "Gateway is down"
+    @echo "\nChecking Backend Health via Gateway..."
+    @curl -s http://localhost:5921/api/health || echo "Backend is down"
+
+# Help:
+help:
+    @echo "Available commands:"
+    @echo "  make up [MODE=prod]       - Start services"
+    @echo "  make down [MODE=prod]     - Stop services"
+    @echo "  make build [MODE=prod]    - Build services"
+    @echo "  make logs

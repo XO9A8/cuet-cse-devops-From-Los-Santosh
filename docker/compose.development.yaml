@@ -1,6 +1,53 @@
-# services:
-  # backend:
+# filepath: d:\Colab\cuet\cuet-cse-devops-From-Los-Santosh\docker\compose.development.yaml
+version: '3.8'
 
-  # gateway:
+services:
+  gateway:
+    build:
+      context: ../gateway
+      dockerfile: Dockerfile.dev
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    environment:
+      - GATEWAY_PORT=${GATEWAY_PORT}
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    volumes:
+      - ../gateway:/app
+      - /app/node_modules
 
-  # mongo:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT}
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - app-network
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
